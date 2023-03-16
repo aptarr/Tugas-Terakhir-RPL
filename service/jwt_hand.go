@@ -18,8 +18,8 @@ type JWTService interface {
 }
 
 type jwtCustomClaim struct {
-	TeamID uint64 `json:"team_id"`
-	Role   string `json:"role"`
+	GROUPID uint64 `json:"group_id"`
+	Role    string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -76,7 +76,7 @@ func (j *jwtService) GetTeamIDByToken(token string) (uint64, error) {
 		return 0, err
 	}
 	claims := t_Token.Claims.(jwt.MapClaims)
-	id := fmt.Sprintf("%v", claims["team_id"])
+	id := fmt.Sprintf("%v", claims["group_id"])
 	teamID, _ := strconv.ParseUint(id, 10, 64)
 	return teamID, nil
 }

@@ -4,6 +4,7 @@ import (
 	"Tugas-Pert4/dto"
 	"Tugas-Pert4/entity"
 	"Tugas-Pert4/repository"
+	"Tugas-Pert4/utils"
 	"context"
 	"errors"
 
@@ -17,6 +18,7 @@ type userHandler struct {
 type UserHndlr interface {
 	//user
 	AddAccountUser(ctx context.Context, userDTO dto.UserAddAccount) (entity.User, error)
+	GetEmailUser(ctx context.Context, userDTO dto.UserAddAccount) (string, error)
 	GetAccountUser(ctx context.Context, userDTO []entity.User) ([]entity.User, error)
 	GetAccountUserByID(ctx context.Context, id uint64) (entity.User, error)
 	UpdateAccountUser(ctx context.Context, userDTO dto.UserUpdateAccount, id uint64) (entity.User, error)
@@ -49,6 +51,26 @@ func (hndlr *userHandler) AddAccountUser(ctx context.Context, userDTO dto.UserAd
 	}
 
 	return addAccount, nil
+}
+
+func (hndlr *userHandler) GetEmailUser(ctx context.Context, userDTO dto.UserAddAccount) (string, error) {
+	var user entity.User
+	copier.Copy(&user, &userDTO)
+
+	//check email
+	emailUser, err := hndlr.userRepo.FindUserEmail(ctx, nil, user.Email)
+	if err != nil {
+		return "", errors.New("invalid email")
+	}
+
+	if utils.PasswordCompare(emailUser.Password, []byte(userDTO.Password)) != nil {
+		return "", errors.New("invalid pasword")
+	}
+
+	jwt_new := NewJWTService()
+	tokens := jwt_new.GenerateToken(emailUser.ID, "admin")
+
+	return tokens, nil
 }
 
 func (hndlr *userHandler) GetAccountUser(ctx context.Context, userDTO []entity.User) ([]entity.User, error) {

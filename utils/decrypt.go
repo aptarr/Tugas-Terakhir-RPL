@@ -2,13 +2,13 @@ package utils
 
 import "golang.org/x/crypto/bcrypt"
 
-func PasswordCompare(hashedPw string, plainPw []byte) (bool, error) {
+func PasswordCompare(hashedPw string, plainPw []byte) error {
 	byteHash := []byte(hashedPw)
 	err := bcrypt.CompareHashAndPassword(byteHash, plainPw)
 	if err != nil {
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 func HasAndSalt(p string) (string, error) {
